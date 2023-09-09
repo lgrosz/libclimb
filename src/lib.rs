@@ -2,6 +2,7 @@
 
 mod grades {
 
+    // vermin-->hueco?
     pub mod vermin {
         #[derive(Debug)]
         pub enum Modifier {
@@ -32,6 +33,7 @@ mod grades {
         }
     }
 
+    // TODO There are some book with +/- attached to B-grades
     pub mod boulder {
         #[derive(Debug)]
         pub enum Value {
@@ -130,34 +132,59 @@ where
     }
 }
 
-fn main() {
-    let v_grade = grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::None };
-    println!("{}", v_grade);
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let v_grade_with_modifier = grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::Plus };
-    println!("{}", v_grade_with_modifier);
+    #[test]
+    fn v_grade_to_string() {
+        let grade = grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::None };
+        assert_eq!(grade.to_string(), "V5");
+    }
 
-    let slash_v_grade = grades::SlashGrade {
-        upper: grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::None },
-        lower: grades::vermin::Grade { value: 4, modifier: grades::vermin::Modifier::None },
-    };
-    println!("{}", slash_v_grade);
+    #[test]
+    fn v_grade_with_modifier_to_string() {
+        let grade = grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::Plus };
+        assert_eq!(grade.to_string(), "V5+");
+    }
 
-    let f_grade = grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::None };
-    println!("{}", f_grade);
+    #[test]
+    fn slash_v_grade() {
+        let grade = grades::SlashGrade {
+            upper: grades::vermin::Grade { value: 5, modifier: grades::vermin::Modifier::None },
+            lower: grades::vermin::Grade { value: 4, modifier: grades::vermin::Modifier::None },
+        };
+        assert_eq!(grade.to_string(), "V4/5");
+    }
 
-    let slash_f_grade = grades::SlashGrade {
-        upper: grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::Plus },
-        lower: grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::None },
-    };
-    println!("{}", slash_f_grade);
+    #[test]
+    fn f_grade() {
+        let grade = grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::None };
+        assert_eq!(grade.to_string(), "f7a");
+    }
 
-    let b_grade = grades::boulder::Grade { value: grades::boulder::Value::One, year: 1960 };
-    println!("{}", b_grade);
+    #[test]
+    fn f_slash_grade() {
+        let grade = grades::SlashGrade {
+            upper: grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::Plus },
+            lower: grades::fontainebleau::Grade { numeral: 7, letter: 'a', modifier: grades::fontainebleau::Modifier::None },
+        };
+        assert_eq!(grade.to_string(), "f7a/+");
+    }
 
-    let slash_b_grade = grades::SlashGrade {
-        upper: grades::boulder::Grade { value: grades::boulder::Value::Two, year: 1960 },
-        lower: grades::boulder::Grade { value: grades::boulder::Value::One, year: 1960 },
-    };
-    println!("{}", slash_b_grade);
+    #[test]
+    fn b_grade() {
+        let grade = grades::boulder::Grade { value: grades::boulder::Value::One, year: 1960 };
+        assert_eq!(grade.to_string(), "B1");
+    }
+
+
+    #[test]
+    fn slash_b_grade() {
+        let grade = grades::SlashGrade {
+            upper: grades::boulder::Grade { value: grades::boulder::Value::Two, year: 1960 },
+            lower: grades::boulder::Grade { value: grades::boulder::Value::One, year: 1960 },
+        };
+        assert_eq!(grade.to_string(), "B1/2");
+    }
 }
