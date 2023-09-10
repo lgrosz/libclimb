@@ -6,7 +6,6 @@ pub enum Modifier {
     Minus,
 }
 
-// TODO Handle VB
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Grade {

@@ -26,7 +26,6 @@ impl fmt::Display for Modifier {
 
 impl fmt::Display for Grade {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO How to make the writing of `"f"` optional
         write!(f, "f{}{}{}", self.numeral, self.letter, self.modifier)
     }
 }
