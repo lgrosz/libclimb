@@ -30,6 +30,23 @@ where
     }
 }
 
+use std::str::FromStr;
+
+impl<T> FromStr for SlashGrade<T>
+where 
+    T: fmt::Display,
+{
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, ()> {
+        // TODO
+        // s should look like
+        // (<grade-regex for T>)/(<partial>)
+        // partial can be appended onto the first match. Then the first match will be the lower
+        // grade while the combination of the two will be the upper grade.
+        return Err(());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -44,6 +61,15 @@ mod tests {
             lower: vermin::Grade { value: 4, modifier: vermin::Modifier::None },
         };
         assert_eq!(grade.to_string(), "V4/5");
+    }
+
+    #[test]
+    fn slash_v_grade_double_digits() {
+        let grade = SlashGrade {
+            upper: vermin::Grade { value: 11, modifier: vermin::Modifier::None },
+            lower: vermin::Grade { value: 10, modifier: vermin::Modifier::None },
+        };
+        assert_eq!(grade.to_string(), "V10/11");
     }
 
     #[test]
