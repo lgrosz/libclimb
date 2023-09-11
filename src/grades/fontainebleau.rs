@@ -1,3 +1,6 @@
+//! A grade module for fontainebleau grades.
+
+/// Represents the different modifiers a V grade can have.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Modifier {
@@ -5,6 +8,7 @@ pub enum Modifier {
     Plus,
 }
 
+/// Represents a fontainebleau grade.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Grade {

@@ -1,3 +1,6 @@
+//! A grade module for vermin, or "V", grades.
+
+/// Represents the different modifiers a V grade can have.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Modifier {
@@ -6,6 +9,7 @@ pub enum Modifier {
     Minus,
 }
 
+/// Represents a V grade.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Grade {

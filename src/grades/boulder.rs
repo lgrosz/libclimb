@@ -1,3 +1,6 @@
+//! A grade module for boulder, or "B", grades.
+
+/// Represents the possible values of a B grade.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Value {
@@ -6,7 +9,7 @@ pub enum Value {
     Three,
 }
 
-// B-grades are all dependent on the year they were established.
+/// Represents a B grade.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Grade {
