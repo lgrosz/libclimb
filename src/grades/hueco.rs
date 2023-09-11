@@ -1,4 +1,4 @@
-//! A grade module for vermin, or "V", grades.
+//! A grade module for hueco, or [v]ermin, grades.
 
 /// Represents the different modifiers a V grade can have.
 #[derive(Debug)]

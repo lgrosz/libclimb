@@ -8,12 +8,20 @@ pub enum Modifier {
     Plus,
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum SubValue {
+    A,
+    B,
+    C
+}
+
 /// Represents a fontainebleau grade.
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Grade {
-    pub numeral: u8,
-    pub letter: char,
+    pub value: u8,
+    pub sub_value: SubValue,
     pub modifier: Modifier,
 }
 
@@ -28,9 +36,19 @@ impl fmt::Display for Modifier {
     }
 }
 
+impl fmt::Display for SubValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            SubValue::A => write!(f, "a"),
+            SubValue::B => write!(f, "b"),
+            SubValue::C => write!(f, "c"),
+        }
+    }
+}
+
 impl fmt::Display for Grade {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "f{}{}{}", self.numeral, self.letter, self.modifier)
+        write!(f, "f{}{}{}", self.value, self.sub_value, self.modifier)
     }
 }
 
@@ -44,6 +62,22 @@ impl FromStr for Modifier {
             "+" => Ok(Self::Plus),
             "" => Ok(Self::None),
             _ => Err(()),
+        }
+    }
+}
+
+impl FromStr for SubValue {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, ()> {
+        match s {
+            "a" => Ok(Self::A),
+            "A" => Ok(Self::A),
+            "b" => Ok(Self::B),
+            "B" => Ok(Self::B),
+            "c" => Ok(Self::C),
+            "C" => Ok(Self::C),
+            _ => Err(())
         }
     }
 }
@@ -63,19 +97,17 @@ impl FromStr for Grade {
         let caps = some_caps.unwrap();
 
         // Since the regex was matched, these unwraps will succeed
-        let numeral = caps
+        let value = caps
             .get(1)
             .unwrap()
             .as_str()
             .parse::<u8>()
             .unwrap();
 
-        let letter = caps
-            .get(2)
-            .unwrap()
-            .as_str()
-            .parse::<char>()
-            .unwrap();
+        let sub_value = match caps.get(2) {
+            Some(m) => m.as_str().parse::<SubValue>()?,
+            None => return Err(())
+        };
 
         let modifier = match caps.get(3)  {
             Some(m) => m.as_str().parse::<Modifier>()?,
@@ -83,8 +115,8 @@ impl FromStr for Grade {
         };
 
         let grade = Grade {
-            numeral,
-            letter,
+            value,
+            sub_value,
             modifier,
         };
 
@@ -98,34 +130,34 @@ mod tests {
 
     #[test]
     fn to_string() {
-        let grade = Grade { numeral: 7, letter: 'a', modifier: Modifier::None };
+        let grade = Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::None };
         assert_eq!(grade.to_string(), "f7a");
     }
 
     #[test]
     fn to_string_with_modifier() {
-        let grade = Grade { numeral: 7, letter: 'a', modifier: Modifier::Plus };
+        let grade = Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::Plus };
         assert_eq!(grade.to_string(), "f7a+");
     }
 
     #[test]
     fn from_string() {
-        assert_eq!(Grade::from_str("f7a").unwrap(), Grade { numeral: 7, letter: 'a', modifier: Modifier::None } );
+        assert_eq!(Grade::from_str("f7a").unwrap(), Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::None } );
     }
 
     #[test]
     fn from_string_with_modifier() {
-        assert_eq!(Grade::from_str("f7a+").unwrap(), Grade { numeral: 7, letter:'a', modifier: Modifier::Plus } );
+        assert_eq!(Grade::from_str("f7a+").unwrap(), Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::Plus } );
     }
 
     #[test]
     fn from_string_upper() {
-        assert_eq!(Grade::from_str("F7a").unwrap(), Grade { numeral: 7, letter: 'a', modifier: Modifier::None } );
+        assert_eq!(Grade::from_str("F7a").unwrap(), Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::None } );
     }
 
     #[test]
     fn from_string_no_prefix() {
-        assert_eq!(Grade::from_str("7a+").unwrap(), Grade { numeral: 7, letter: 'a', modifier: Modifier::Plus } );
+        assert_eq!(Grade::from_str("7a+").unwrap(), Grade { value: 7, sub_value: SubValue::A, modifier: Modifier::Plus } );
     }
 
     #[test]
