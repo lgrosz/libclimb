@@ -3,4 +3,4 @@
 //! The primarily European grading system developed in Fontainebleau, France.
 
 mod grade;
-pub use grade::Grade;
+pub use grade::*;

@@ -1,14 +1,34 @@
 /// Structure representing a fontainebleau grade.
+///
+/// A Fontainebleau grade is a difficulty rating on open ended scale. Its levels are represented by
+/// positive integers, where the higher the integer the greater than difficulty. After level 6, the
+/// grades are divided into three catagories, A, B, and C, each denoting a slightly higher degree
+/// of difficulty. At any level, the grade may be postfixed with a "+", refining the difficulty
+/// between the two adjacent steps.
+///
+/// These grades can be displayed to the user with the numeral level, the captital-alphabetic
+/// division (if applicable), followed the "+.". For example, 4, 4+, 6a, 7a+, are all valid grades
 #[derive(PartialEq, PartialOrd)]
 pub struct Grade {
-    // numerals can range from 1-9
-    numeral: u8,
-
-    // for numerals >5, letters a, b, and c can exist
-    letter: Option<char>,
-
-    // further refinement between grades
+    level: u8,
+    division: Option<Division>,
     plus: bool,
+}
+
+/// An enumeration of level subdivisions
+///
+/// These values subdivide a grading level, giving further refinement to the difficulty represented
+/// by a grade. The divisions are only applicable to grade levels greater than 5.
+#[derive(PartialEq, PartialOrd)]
+pub enum Division {
+    /// Subdivision A, easier than B
+    A,
+
+    /// Subdivision B, harder than A, but easier than C
+    B,
+
+    /// Subdivision C, harder than B
+    C,
 }
 
 use std::fmt;
@@ -16,50 +36,47 @@ use std::fmt;
 impl Grade {
     /// Creates a new Fontainebleau grade
     ///
-    /// Creates a Fontainbleau grade which, in addition to what the types enforce, satisfies the
-    /// following requirements
-    /// - `numeral` < 10
-    /// - `letter` ∈ { A, B, C, ∅ }, case insensitive
-    /// - `letter` may only be present if `numeral` < 6
-    /// - `letter` must be present if `numeral` > 5
+    /// `None` will be returned if `division.is_some()` when `level < 6` or if `division.is_none()`
+    /// when `level > 5`.
     ///
     /// # Arguments
     ///
-    /// * `numeral` - The numeral grade, \[7\]B+, `numeral < 10`.
-    /// * `letter` - The letter grade, 7\[B\]+, if applicable
-    /// * `plus` - Whether or not the plus exists, `true` with 7B\[+\] or false with 7B\[\]
-    pub fn new(numeral: u8, letter: Option<char>, plus: bool) -> Option<Self> {
-        if numeral > 9 {
+    /// * `level` - The numeral level of the grade, as in \[7\]A+.
+    /// * `division` - The letter divisor of the grade, as in 7\[A\]+.
+    /// * `plus` - Whether or not a "plus" is given.
+    pub fn new(level: u8, division: Option<Division>, plus: bool) -> Option<Self> {
+        if level < 6 && division.is_some() {
             return None;
         }
 
-        if numeral < 6 && letter.is_some() {
+        if level > 5 && division.is_none() {
             return None;
         }
 
-        if numeral > 5 && letter.is_none() {
-            return None;
-        }
+        return Some(Grade{ level, division, plus });
+    }
+}
 
-        if letter.is_some() &&
-           letter.unwrap().to_ascii_lowercase() != 'a' &&
-           letter.unwrap().to_ascii_lowercase() != 'b' &&
-           letter.unwrap().to_ascii_lowercase() != 'c' {
-            return None;
+impl fmt::Display for Division {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Division::A => write!(f, "A"),
+            Division::B => write!(f, "B"),
+            Division::C => write!(f, "C"),
         }
-
-        return Some(Grade{ numeral, letter, plus });
     }
 }
 
 impl fmt::Display for Grade {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let plus = if self.plus { "+" } else { "" };
-        let letter = if self.letter.is_some() { self.letter.unwrap().to_ascii_uppercase().to_string() } else { "".to_owned() };
+        write!(f, "{}", self.level)?;
 
-        // TODO
-        // Should be prefixable with "F" or "Fb"
-        return write!(f, "{}{}{}", self.numeral, letter, plus);
+        match &self.division {
+            Some(division) => write!(f, "{}", division),
+            _ => Ok(()),
+        }?;
+
+        write!(f, "{}", if self.plus { "+" } else { "" })
     }
 }
 
@@ -79,32 +96,22 @@ mod tests {
 
     #[test]
     fn valid_grade_3() {
-        assert!(Grade::new(6, Some('a'), false).is_some());
+        assert!(Grade::new(6, Some(Division::A), false).is_some());
     }
 
     #[test]
     fn valid_grade_4() {
-        assert!(Grade::new(7, Some('b'), true).is_some());
+        assert!(Grade::new(7, Some(Division::B), true).is_some());
     }
 
     #[test]
     fn invalid_grade_1() {
-        assert!(Grade::new(5, Some('a'), false).is_none());
+        assert!(Grade::new(5, Some(Division::A), false).is_none());
     }
 
     #[test]
     fn invalid_grade_2() {
         assert!(Grade::new(6, None, false).is_none());
-    }
-
-    #[test]
-    fn invalid_grade_3() {
-        assert!(Grade::new(7, Some('d'), false).is_none());
-    }
-
-    #[test]
-    fn invalid_grade_4() {
-        assert!(Grade::new(10, None, false).is_none());
     }
 
     #[test]
@@ -119,12 +126,12 @@ mod tests {
 
     #[test]
     fn to_string_3() {
-        assert_eq!(Grade::new(6, Some('a'), false).expect("Good value").to_string(), "6A");
+        assert_eq!(Grade::new(6, Some(Division::A), false).expect("Good value").to_string(), "6A");
     }
 
     #[test]
     fn to_string_4() {
-        assert_eq!(Grade::new(7, Some('b'), true).expect("Good value").to_string(), "7B+");
+        assert_eq!(Grade::new(7, Some(Division::B), true).expect("Good value").to_string(), "7B+");
     }
 
     #[test]
@@ -139,11 +146,11 @@ mod tests {
 
     #[test]
     fn lt_3() {
-        assert!(Grade::new(6, Some('a'), false).expect("Good value") < Grade::new(6, Some('b'), false).expect("Good value"));
+        assert!(Grade::new(6, Some(Division::A), false).expect("Good value") < Grade::new(6, Some(Division::B), false).expect("Good value"));
     }
 
     #[test]
     fn lt_4() {
-        assert!(Grade::new(6, Some('a'), false).expect("Good value") < Grade::new(6, Some('a'), true).expect("Good value"));
+        assert!(Grade::new(6, Some(Division::A), false).expect("Good value") < Grade::new(6, Some(Division::A), true).expect("Good value"));
     }
 }
