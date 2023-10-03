@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 /// Structure representing a fontainebleau grade.
 ///
 /// A Fontainebleau grade is a difficulty rating on open ended scale. Its levels are represented by
@@ -8,7 +10,7 @@
 ///
 /// These grades can be displayed to the user with the numeral level, the captital-alphabetic
 /// division (if applicable), followed the "+.". For example, 4, 4+, 6a, 7a+, are all valid grades
-#[derive(PartialEq, PartialOrd)]
+#[derive(PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Grade {
     level: u8,
     division: Option<Division>,
@@ -19,7 +21,7 @@ pub struct Grade {
 ///
 /// These values subdivide a grading level, giving further refinement to the difficulty represented
 /// by a grade. The divisions are only applicable to grade levels greater than 5.
-#[derive(PartialEq, PartialOrd)]
+#[derive(PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum Division {
     /// Subdivision A, easier than B
     A,
@@ -79,6 +81,9 @@ impl fmt::Display for Grade {
         write!(f, "{}", if self.plus { "+" } else { "" })
     }
 }
+
+//mod serde;
+//pub use serde::*;
 
 #[cfg(test)]
 mod tests {
@@ -153,4 +158,19 @@ mod tests {
     fn lt_4() {
         assert!(Grade::new(6, Some(Division::A), false).expect("Good value") < Grade::new(6, Some(Division::A), true).expect("Good value"));
     }
+
+    #[test]
+    fn json() {
+        let grade = Grade::new(6, Some(Division::A), true);
+
+        println!("json = {}", serde_json::to_string(&grade).unwrap());
+    }
+
+    #[test]
+    fn yaml() {
+        let grade = Grade::new(6, Some(Division::A), true);
+
+        println!("yaml = {}", serde_yaml::to_string(&grade).unwrap());
+    }
 }
+
