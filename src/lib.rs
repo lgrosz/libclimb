@@ -6,3 +6,4 @@
 
 pub mod grades;
 pub mod ascent;
+pub mod route;
