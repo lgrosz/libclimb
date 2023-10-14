@@ -1,4 +1,4 @@
-//! Fontainbleau boulder problem grading system
+//! Fontainebleau boulder problem grading system
 //!
 //! The primarily European grading system developed in Fontainebleau, France.
 
