@@ -7,6 +7,7 @@ use core::fmt::Display;
 use std::str::FromStr;
 
 pub mod fontainebleau;
+pub mod hueco;
 
 /// A grade is a measure of difficulty
 ///
