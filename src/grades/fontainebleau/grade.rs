@@ -10,6 +10,7 @@
 /// division (if applicable), followed the "+.". For example, 4, 4+, 6a, 7a+, are all valid grades
 #[derive(PartialEq, PartialOrd, Debug)]
 pub struct Fontainebleau {
+    // The order of these attributes matter for the PartialOrd default trait implementation
     level: u8,
     division: Option<Division>,
     plus: bool,
@@ -68,6 +69,9 @@ impl Fontainebleau {
         Ok(Fontainebleau { level, division, plus })
     }
 }
+#[cfg(test)]
+mod impl_tests;
+
 
 impl Grade for Fontainebleau { }
 
@@ -93,6 +97,8 @@ impl fmt::Display for Fontainebleau {
         write!(f, "{}", if self.plus { "+" } else { "" })
     }
 }
+#[cfg(test)]
+mod display_tests;
 
 impl FromStr for Fontainebleau {
     type Err = FontainebleauParseError;
@@ -125,7 +131,8 @@ impl FromStr for Fontainebleau {
             .map_err(|e| FontainebleauParseError::BadGrade(e))
     }
 }
-
+#[cfg(test)]
+mod from_str_tests;
 
 #[derive(Debug)]
 /// Errors for when parsing strings as Fontainebleau grades
@@ -150,112 +157,6 @@ impl FromStr for Division {
     }
 }
 
+
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn valid_grade_1() {
-        assert!(Fontainebleau::new(1, None, false).is_ok());
-    }
-
-    #[test]
-    fn valid_grade_2() {
-        assert!(Fontainebleau::new(5, None, true).is_ok());
-    }
-
-    #[test]
-    fn valid_grade_3() {
-        assert!(Fontainebleau::new(6, Some(Division::A), false).is_ok());
-    }
-
-    #[test]
-    fn valid_grade_4() {
-        assert!(Fontainebleau::new(7, Some(Division::B), true).is_ok());
-    }
-
-    #[test]
-    fn invalid_grade_1() {
-        assert!(matches!(
-            Fontainebleau::new(5, Some(Division::A), false).unwrap_err(),
-            FontainebleauError::LevelTooLowWithDivision
-        ));
-    }
-
-    #[test]
-    fn invalid_grade_2() {
-        assert!(matches!(
-            Fontainebleau::new(6, None, false).unwrap_err(),
-            FontainebleauError::LevelTooHighWithoutDivision
-        ));
-    }
-
-    #[test]
-    fn to_string_1() {
-        assert_eq!(Fontainebleau::new(1, None, false).expect("Good value").to_string(), "1");
-    }
-
-    #[test]
-    fn to_string_2() {
-        assert_eq!(Fontainebleau::new(1, None, true).expect("Good value").to_string(), "1+");
-    }
-
-    #[test]
-    fn to_string_3() {
-        assert_eq!(Fontainebleau::new(6, Some(Division::A), false).expect("Good value").to_string(), "6A");
-    }
-
-    #[test]
-    fn to_string_4() {
-        assert_eq!(Fontainebleau::new(7, Some(Division::B), true).expect("Good value").to_string(), "7B+");
-    }
-
-    #[test]
-    fn lt_1() {
-        assert!(Fontainebleau::new(1, None, false).expect("Good value") < Fontainebleau::new(2, None, false).expect("Good value"));
-    }
-
-    #[test]
-    fn lt_2() {
-        assert!(Fontainebleau::new(1, None, false).expect("Good value") < Fontainebleau::new(1, None, true).expect("Good value"));
-    }
-
-    #[test]
-    fn lt_3() {
-        assert!(Fontainebleau::new(6, Some(Division::A), false).expect("Good value") < Fontainebleau::new(6, Some(Division::B), false).expect("Good value"));
-    }
-
-    #[test]
-    fn lt_4() {
-        assert!(Fontainebleau::new(6, Some(Division::A), false).expect("Good value") < Fontainebleau::new(6, Some(Division::A), true).expect("Good value"));
-    }
-
-    #[test]
-    fn from_str1() {
-        assert!(matches!(
-            "".parse::<Fontainebleau>().unwrap_err(),
-            FontainebleauParseError::InvalidStr
-        ));
-    }
-
-    #[test]
-    fn from_str2() {
-        assert!(matches!(
-            "5B+".parse::<Fontainebleau>().unwrap_err(),
-            FontainebleauParseError::BadGrade(FontainebleauError::LevelTooLowWithDivision)
-        ));
-    }
-
-    #[test]
-    fn from_str3() {
-        assert!(matches!(
-            "6".parse::<Fontainebleau>().unwrap_err(),
-            FontainebleauParseError::BadGrade(FontainebleauError::LevelTooHighWithoutDivision)
-        ));
-    }
-
-    #[test]
-    fn from_str4() {
-        assert_eq!("F8A+".parse::<Fontainebleau>().expect("Good value"), Fontainebleau::new(8, Some(Division::A), true).expect("Good value"))
-    }
-}
+mod partial_ord_tests;
