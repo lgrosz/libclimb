@@ -27,7 +27,7 @@ pub enum Modifier {
 
 use std::{fmt, str::FromStr};
 
-use crate::grades::Grade;
+use crate::grades::GradeTrait;
 
 impl Hueco {
     /// Creates a new Hueco grade
@@ -41,7 +41,7 @@ impl Hueco {
     }
 }
 
-impl Grade for Hueco { }
+impl GradeTrait for Hueco { }
 
 use std::cmp::Ordering;
 impl PartialOrd for Hueco {

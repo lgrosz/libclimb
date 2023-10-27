@@ -34,7 +34,7 @@ pub enum Division {
 
 use std::{fmt, str::FromStr};
 
-use crate::grades::Grade;
+use crate::grades::GradeTrait;
 
 #[derive(Debug)]
 /// Errors related to a Fontainebleau grade
@@ -73,7 +73,7 @@ impl Fontainebleau {
 mod impl_tests;
 
 
-impl Grade for Fontainebleau { }
+impl GradeTrait for Fontainebleau { }
 
 impl fmt::Display for Division {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
